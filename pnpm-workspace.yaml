@@ -1,0 +1,6 @@
+packages:
+  - '.'
+allowBuilds:
+  hexo-util: set this to true or false
+onlyBuiltDependencies:
+  - hexo-util

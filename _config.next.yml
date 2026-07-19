@@ -1,0 +1,108 @@
+# NexT Theme Configuration
+# Docs: https://theme-next.js.org/docs/
+
+# ---------------------------------------------------------------
+# Menu Settings
+# ---------------------------------------------------------------
+menu:
+  home: / || fa fa-home
+  archives: /archives/ || fa fa-archive
+  categories: /categories/ || fa fa-th
+  tags: /tags/ || fa fa-tags
+  about: /about/ || fa fa-user
+
+# ---------------------------------------------------------------
+# Scheme Settings (Muse | Mist | Pisces | Gemini)
+# ---------------------------------------------------------------
+scheme: Gemini
+
+# ---------------------------------------------------------------
+# Sidebar Settings
+# ---------------------------------------------------------------
+sidebar:
+  position: left
+  display: post
+  padding: 18
+  offset: 12
+  b2t: true
+  scrollpercent: true
+
+avatar:
+  enabled: false
+
+# ---------------------------------------------------------------
+# Social Links
+# ---------------------------------------------------------------
+social:
+  GitHub: https://github.com/ziwen52 || fab fa-github
+
+social_icons:
+  icons_only: true
+  transition: true
+
+# ---------------------------------------------------------------
+# Post Settings
+# ---------------------------------------------------------------
+post_meta:
+  item_text: true
+  created_at: true
+  updated_at:
+    enable: true
+    another_day: true
+  categories: true
+
+# Reward (打赏) - disable by default
+reward:
+  enable: false
+
+# ---------------------------------------------------------------
+# Code Highlight
+# ---------------------------------------------------------------
+codeblock:
+  border_radius: 4
+  copy_button:
+    enable: true
+    style: flat
+
+# ---------------------------------------------------------------
+# Search
+# ---------------------------------------------------------------
+local_search:
+  enable: true
+  trigger: auto
+  top_n_per_article: 3
+  unescape: false
+  preload: false
+
+# ---------------------------------------------------------------
+# Footer
+# ---------------------------------------------------------------
+footer:
+  icon:
+    enabled: true
+    icon: fa fa-heartbeat
+
+# ---------------------------------------------------------------
+# Creative Commons
+# ---------------------------------------------------------------
+creative_commons:
+  license: by-nc-sa
+  sidebar: true
+  post: true
+  language: deed.zh
+
+# ---------------------------------------------------------------
+# Tag Cloud
+# ---------------------------------------------------------------
+tagcloud:
+  min: 12
+  max: 30
+  start: "#555"
+  end: "#111"
+  amount: 30
+
+# ---------------------------------------------------------------
+# Analytics (optional - add your tracking ID later)
+# ---------------------------------------------------------------
+# google_analytics:
+# baidu_analytics:

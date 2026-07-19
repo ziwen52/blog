@@ -1,0 +1,7 @@
+node_modules/
+.deploy_git/
+public/
+.DS_Store
+Thumbs.db
+*.log
+package-lock.json
