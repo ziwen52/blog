@@ -3,12 +3,11 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: 王子文的博客
-subtitle: '技术 & 生活'
-description: '记录技术学习、项目实践与生活思考'
-keywords: 技术, 博客, 生活, 编程, 学习
-author: 王子文
-language: zh-CN
+title: 鐜嬪瓙鏂囩殑鍗氬
+subtitle: '鎶€鏈?& 鐢熸椿'
+description: '璁板綍鎶€鏈涔犮€侀」鐩疄璺典笌鐢熸椿鎬濊€?
+keywords: 鎶€鏈? 鍗氬, 鐢熸椿, 缂栫▼, 瀛︿範
+author: 鐜嬪瓙鏂?language: zh-CN
 timezone: 'Asia/Shanghai'
 
 # URL
@@ -28,7 +27,6 @@ archive_dir: archives
 category_dir: categories
 code_dir: downloads/code
 i18n_dir: :lang
-skip_render:
 
 # Writing
 new_post_name: :title.md # File name of new posts
@@ -92,6 +90,8 @@ pagination_dir: page
 include:
 exclude:
 ignore:
+skip_render:
+  - admin/**
 
 # Extensions
 ## Plugins: https://hexo.io/plugins/
