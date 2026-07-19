@@ -13,6 +13,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .header p { color: #666; font-size: 14px; }
 .card { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 .card h2 { font-size: 18px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+.card h2 .badge { font-size: 12px; background: #0366d6; color: #fff; padding: 2px 8px; border-radius: 10px; font-weight: normal; margin-left: 8px; }
 .form-group { margin-bottom: 15px; }
 .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 5px; color: #555; }
 .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
@@ -21,6 +22,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .btn { display: inline-block; padding: 10px 24px; background: #2ea44f; color: #fff; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; }
 .btn:hover { background: #2c974b; }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-sm { padding: 6px 16px; font-size: 13px; }
+.btn-gray { background: #6b7280; }
+.btn-gray:hover { background: #4b5563; }
+.btn-blue { background: #2563eb; }
+.btn-blue:hover { background: #1d4ed8; }
 .msg { padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; display: none; }
 .msg.success { display: block; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
 .msg.error { display: block; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
@@ -29,22 +35,28 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .token-setup h3 { font-size: 15px; margin-bottom: 8px; }
 .token-setup input { width: 100%; padding: 8px; border: 1px solid #ffc107; border-radius: 4px; font-size: 14px; }
 .note { font-size: 12px; color: #888; margin-top: 8px; }
+.toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; }
+.toolbar .sep { color: #ddd; user-select: none; }
+.upload-area { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.upload-area input[type=file] { font-size: 13px; }
+.progress-bar { height: 4px; background: #e5e7eb; border-radius: 2px; margin-top: 8px; overflow: hidden; display: none; }
+.progress-bar .fill { height: 100%; background: #2563eb; width: 0%; transition: width 0.3s; }
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
-    <h1>✏️ 写文章</h1>
-    <p>发表到 ziwen52/blog，自动构建部署到博客</p>
+    <h1>写文章</h1>
+    <p>发表到 ziwen52/blog，自动构建部署</p>
   </div>
 
   <div id="msg" class="msg"></div>
 
   <div class="token-setup" id="tokenSetup">
-    <h3>🔑 GitHub Token</h3>
+    <h3>GitHub Token</h3>
     <p>填入你的 Personal Access Token（存在浏览器本地，不会上传到别处）</p>
     <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-    <button class="btn" style="margin-top:8px" onclick="saveToken()">保存 Token</button>
+    <button class="btn btn-sm" style="margin-top:8px" onclick="saveToken()">保存 Token</button>
     <div class="note">Token 仅保存在你浏览器本地存储中。</div>
   </div>
 
@@ -66,16 +78,38 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 
   <div class="card">
     <h2>正文（Markdown）</h2>
+
+    <div class="toolbar">
+      <button class="btn btn-sm btn-gray" onclick="insertMarkdown('**', '**')" title="粗体"><b>B</b></button>
+      <button class="btn btn-sm btn-gray" onclick="insertMarkdown('*', '*')" title="斜体"><i>I</i></button>
+      <button class="btn btn-sm btn-gray" onclick="insertMarkdown('`', '`')" title="行内代码">&lt;/&gt;</button>
+      <span class="sep">|</span>
+      <button class="btn btn-sm btn-gray" onclick="insertMarkdown('## ', '')" title="标题">H2</button>
+      <button class="btn btn-sm btn-gray" onclick="insertMarkdown('- ', '')" title="列表项">列表</button>
+      <button class="btn btn-sm btn-gray" onclick="insertMarkdown('> ', '')" title="引用">引用</button>
+      <button class="btn btn-sm btn-gray" onclick="insertMarkdown('```\n', '\n```')" title="代码块">代码块</button>
+      <span class="sep">|</span>
+      <label class="btn btn-sm btn-blue" style="cursor:pointer;">
+        上传图片
+        <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="uploadImage()">
+      </label>
+      <span id="uploadStatus" style="font-size:13px;color:#666;"></span>
+    </div>
+
+    <div class="progress-bar" id="progressBar">
+      <div class="fill" id="progressFill"></div>
+    </div>
+
     <div class="form-group">
       <textarea id="content" rows="15" placeholder="在这里写文章内容...&#10;&#10;支持 Markdown 语法&#10;---&#10;# 标题&#10;**粗体** *斜体*&#10;- 列表项&#10;`代码`"></textarea>
     </div>
-    <button class="btn" id="publishBtn" onclick="publish()">📤 发布文章</button>
+    <button class="btn" id="publishBtn" onclick="publish()">发布文章</button>
     <span id="status" style="margin-left:10px;font-size:13px;color:#666;"></span>
   </div>
 
   <div class="card">
-    <h2>📋 最近文章</h2>
-    <div id="recentPosts">
+    <h2>最近文章 <span class="badge" id="postCount">0</span></h2>
+    <div id="recentPosts" style="font-size:14px;">
       <p style="color:#999;">加载中...</p>
     </div>
   </div>
@@ -85,6 +119,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 const API = 'https://api.github.com';
 const REPO = 'ziwen52/blog';
 const BRANCH = 'master';
+const IMG_PATH = 'source/images/uploads';
+const IMG_PUBLIC = '/images/uploads';
 
 function showMsg(text, type) {
   const el = document.getElementById('msg');
@@ -105,11 +141,11 @@ function saveToken() {
   }
 }
 
-// Load saved token into input placeholder
+// Restore saved token hint
 const savedToken = getToken();
 if (savedToken) {
-  document.querySelector('.token-setup p').textContent = '✅ Token 已配置（点击输入框可更换）';
-  document.getElementById('tokenInput').placeholder = '已保存 Token，输入新值可更换';
+  document.querySelector('.token-setup p').textContent = 'Token 已配置（可输入新值更换）';
+  document.getElementById('tokenInput').placeholder = '已保存 Token';
 }
 
 async function api(path, method, body) {
@@ -117,10 +153,7 @@ async function api(path, method, body) {
   if (!token) throw new Error('请先设置 GitHub Token');
   const opts = {
     method: method || 'GET',
-    headers: {
-      Authorization: 'token ' + token,
-      Accept: 'application/vnd.github.v3+json'
-    }
+    headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' }
   };
   if (body) { opts.body = JSON.stringify(body); opts.headers['Content-Type'] = 'application/json'; }
   const res = await fetch(API + path, opts);
@@ -129,6 +162,88 @@ async function api(path, method, body) {
     throw new Error(res.status + ': ' + err.substring(0, 100));
   }
   return res.status === 204 ? null : res.json();
+}
+
+function insertMarkdown(before, after) {
+  const ta = document.getElementById('content');
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const text = ta.value;
+  const selected = text.substring(start, end);
+  ta.value = text.substring(0, start) + before + selected + after + text.substring(end);
+  ta.focus();
+  ta.selectionStart = start + before.length;
+  ta.selectionEnd = start + before.length + selected.length;
+}
+
+async function uploadImage() {
+  const input = document.getElementById('imageInput');
+  const file = input.files[0];
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    showMsg('图片不能超过 5MB', 'error');
+    return;
+  }
+
+  const statusEl = document.getElementById('uploadStatus');
+  const bar = document.getElementById('progressBar');
+  const fill = document.getElementById('progressFill');
+  statusEl.textContent = '上传中... (' + file.name + ')';
+  bar.style.display = 'block';
+  fill.style.width = '10%';
+
+  try {
+    // Read file as base64
+    const reader = new FileReader();
+    const b64 = await new Promise((resolve, reject) => {
+      reader.onload = () => {
+        const data = reader.result.split(',')[1];
+        resolve(data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    fill.style.width = '40%';
+
+    const ext = file.name.split('.').pop() || 'png';
+    const timestamp = Date.now();
+    const fileName = timestamp + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+
+    // Check if file exists
+    let sha = null;
+    try {
+      const existing = await api('/repos/' + REPO + '/contents/' + IMG_PATH + '/' + encodeURIComponent(fileName));
+      sha = existing.sha;
+    } catch (e) {}
+
+    fill.style.width = '70%';
+
+    await api('/repos/' + REPO + '/contents/' + IMG_PATH + '/' + encodeURIComponent(fileName), 'PUT', {
+      message: 'Upload image: ' + fileName,
+      content: b64,
+      sha: sha,
+      branch: BRANCH
+    });
+
+    fill.style.width = '100%';
+
+    // Insert markdown image at cursor position
+    const md = '![](' + IMG_PUBLIC + '/' + fileName + ')';
+    insertMarkdown(md, '');
+
+    setTimeout(() => { bar.style.display = 'none'; fill.style.width = '0%'; }, 500);
+    statusEl.textContent = '已插入: ' + fileName;
+    showMsg('图片上传成功！已插入到正文中。', 'success');
+  } catch (e) {
+    bar.style.display = 'none';
+    fill.style.width = '0%';
+    statusEl.textContent = '上传失败';
+    showMsg('图片上传失败: ' + e.message, 'error');
+  }
+
+  input.value = '';
 }
 
 async function publish() {
@@ -147,13 +262,17 @@ async function publish() {
 
   try {
     const now = new Date();
-    const dateStr = now.toISOString().slice(0, 19).replace('T', ' ');
+    const dateStr = now.getFullYear() + '-' +
+      String(now.getMonth() + 1).padStart(2, '0') + '-' +
+      String(now.getDate()).padStart(2, '0') + ' ' +
+      String(now.getHours()).padStart(2, '0') + ':' +
+      String(now.getMinutes()).padStart(2, '0') + ':' +
+      String(now.getSeconds()).padStart(2, '0');
     const slug = title.toLowerCase()
       .replace(/[^\w\u4e00-\u9fa5]+/g, '-')
       .replace(/^-+|-+$/g, '') || 'post';
     const fileName = dateStr.slice(0, 10) + '-' + slug + '.md';
 
-    // Build front-matter
     let frontMatter = '---\ntitle: ' + title + '\ndate: ' + dateStr + '\n';
     if (categories) frontMatter += 'categories:\n  - ' + categories.split(/[,，]/).map(c => c.trim()).filter(Boolean).join('\n  - ') + '\n';
     if (tags) frontMatter += 'tags:\n  - ' + tags.split(/[,，]/).map(t => t.trim()).filter(Boolean).join('\n  - ') + '\n';
@@ -161,12 +280,11 @@ async function publish() {
 
     const fullContent = frontMatter + content;
 
-    // Check if file exists to get SHA
     let sha = null;
     try {
       const existing = await api('/repos/' + REPO + '/contents/source/_posts/' + encodeURIComponent(fileName));
       sha = existing.sha;
-    } catch (e) { /* file doesn't exist, that's fine */ }
+    } catch (e) {}
 
     await api('/repos/' + REPO + '/contents/source/_posts/' + encodeURIComponent(fileName), 'PUT', {
       message: 'New post: ' + title,
@@ -175,14 +293,14 @@ async function publish() {
       branch: BRANCH
     });
 
-    showMsg('✅ 文章已提交！GitHub Actions 正在自动构建部署，约 1-2 分钟后生效。', 'success');
+    showMsg('文章已提交！GitHub Actions 正在自动构建部署，约 1-2 分钟后生效。', 'success');
     document.getElementById('title').value = '';
     document.getElementById('content').value = '';
     document.getElementById('categories').value = '';
     document.getElementById('tags').value = '';
     loadRecentPosts();
   } catch (e) {
-    showMsg('❌ 发布失败: ' + e.message, 'error');
+    showMsg('发布失败: ' + e.message, 'error');
   } finally {
     btn.disabled = false;
     statusEl.textContent = '';
@@ -194,11 +312,11 @@ async function loadRecentPosts() {
   try {
     const data = await api('/repos/' + REPO + '/contents/source/_posts');
     if (data && data.length > 0) {
-      // Sort by name descending (newest first)
+      document.getElementById('postCount').textContent = data.length;
       data.sort((a, b) => b.name.localeCompare(a.name));
       let html = '<ul style="list-style:none;">';
-      data.slice(0, 10).forEach(f => {
-        html += '<li style="padding:8px 0;border-bottom:1px solid #eee;font-size:14px;">';
+      data.slice(0, 15).forEach(f => {
+        html += '<li style="padding:8px 0;border-bottom:1px solid #eee;">';
         html += '<a href="' + f.html_url + '" target="_blank" style="color:#0366d6;text-decoration:none;">' + f.name.replace(/\.md$/, '') + '</a>';
         html += ' <span style="color:#999;font-size:12px;">(' + Math.round(f.size/1000) + 'KB)</span>';
         html += '</li>';
@@ -209,7 +327,7 @@ async function loadRecentPosts() {
       el.innerHTML = '<p style="color:#999;">暂无文章</p>';
     }
   } catch (e) {
-    el.innerHTML = '<p style="color:#999;">加载失败（需要配置 Token 后才能查看）</p>';
+    el.innerHTML = '<p style="color:#999;">加载失败（需配置 Token）</p>';
   }
 }
 
