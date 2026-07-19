@@ -5,6 +5,9 @@ backend:
   name: github
   repo: ziwen52/blog
   branch: master
+  base_url: https://decap-cms-auth.netlify.app
+  auth_endpoint: auth
+  site_id: Ov23li2O71nqmdcHsuJc
   # OAuth proxy URL - will be configured after creating OAuth App
 
 media_folder: "source/images/uploads"
@@ -14,35 +17,35 @@ logo_url: /images/logo.svg
 
 collections:
   - name: "posts"
-    label: "文章"
-    label_singular: "文章"
+    label: "鏂囩珷"
+    label_singular: "鏂囩珷"
     folder: "source/_posts"
     create: true
     slug: "{{slug}}"
     preview_path: "{{slug}}"
     sortable_fields: ["date", "title"]
     view_filters:
-      - label: "已发布"
+      - label: "宸插彂甯?
         field: "draft"
         pattern: false
     view_groups:
-      - label: "分类"
+      - label: "鍒嗙被"
         field: categories
     fields:
-      - {label: "标题", name: "title", widget: "string"}
-      - {label: "发布日期", name: "date", widget: "datetime", format: "YYYY-MM-DD HH:mm:ss"}
-      - {label: "分类", name: "categories", widget: "list", required: false, allow_add: true}
-      - {label: "标签", name: "tags", widget: "list", required: false, allow_add: true}
-      - {label: "正文", name: "body", widget: "markdown"}
-      - {label: "草稿", name: "draft", widget: "boolean", default: false, required: false}
+      - {label: "鏍囬", name: "title", widget: "string"}
+      - {label: "鍙戝竷鏃ユ湡", name: "date", widget: "datetime", format: "YYYY-MM-DD HH:mm:ss"}
+      - {label: "鍒嗙被", name: "categories", widget: "list", required: false, allow_add: true}
+      - {label: "鏍囩", name: "tags", widget: "list", required: false, allow_add: true}
+      - {label: "姝ｆ枃", name: "body", widget: "markdown"}
+      - {label: "鑽夌", name: "draft", widget: "boolean", default: false, required: false}
 
   - name: "pages"
-    label: "页面"
-    label_singular: "页面"
+    label: "椤甸潰"
+    label_singular: "椤甸潰"
     folder: "source"
     create: true
     slug: "{{slug}}"
     filter: {field: "title", value: ""}
     fields:
-      - {label: "标题", name: "title", widget: "string"}
-      - {label: "正文", name: "body", widget: "markdown"}
+      - {label: "鏍囬", name: "title", widget: "string"}
+      - {label: "姝ｆ枃", name: "body", widget: "markdown"}
