@@ -1,0 +1,48 @@
+# Decap CMS Configuration
+# Docs: https://decapcms.org/docs/configure-decap-cms/
+
+backend:
+  name: github
+  repo: ziwen52/blog
+  branch: master
+  # OAuth proxy URL - will be configured after creating OAuth App
+
+media_folder: "source/images/uploads"
+public_folder: "/images/uploads"
+publish_mode: editorial_workflow
+logo_url: /images/logo.svg
+
+collections:
+  - name: "posts"
+    label: "文章"
+    label_singular: "文章"
+    folder: "source/_posts"
+    create: true
+    slug: "{{slug}}"
+    preview_path: "{{slug}}"
+    sortable_fields: ["date", "title"]
+    view_filters:
+      - label: "已发布"
+        field: "draft"
+        pattern: false
+    view_groups:
+      - label: "分类"
+        field: categories
+    fields:
+      - {label: "标题", name: "title", widget: "string"}
+      - {label: "发布日期", name: "date", widget: "datetime", format: "YYYY-MM-DD HH:mm:ss"}
+      - {label: "分类", name: "categories", widget: "list", required: false, allow_add: true}
+      - {label: "标签", name: "tags", widget: "list", required: false, allow_add: true}
+      - {label: "正文", name: "body", widget: "markdown"}
+      - {label: "草稿", name: "draft", widget: "boolean", default: false, required: false}
+
+  - name: "pages"
+    label: "页面"
+    label_singular: "页面"
+    folder: "source"
+    create: true
+    slug: "{{slug}}"
+    filter: {field: "title", value: ""}
+    fields:
+      - {label: "标题", name: "title", widget: "string"}
+      - {label: "正文", name: "body", widget: "markdown"}

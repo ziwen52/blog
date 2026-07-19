@@ -1,0 +1,36 @@
+name: Deploy Blog
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm rebuild hexo-util
+
+      - name: Generate site
+        run: pnpm exec hexo generate
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          external_repository: ziwen52/ziwen52.github.io
+          publish_branch: master
+          publish_dir: ./public
+          personal_token: ${{ secrets.GH_PAT }}
