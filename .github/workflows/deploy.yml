@@ -16,16 +16,10 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Install dependencies
+      - name: Install dependencies and build
         run: |
-          pnpm install --no-frozen-lockfile
-          pnpm rebuild hexo-util
-
-      - name: Generate site
-        run: npx hexo generate
+          npm install --legacy-peer-deps
+          npx hexo generate
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
