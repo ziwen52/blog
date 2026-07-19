@@ -1,11 +1,219 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>博客管理</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>写文章</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f5; color: #333; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+.header { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.header h1 { font-size: 24px; margin-bottom: 5px; }
+.header p { color: #666; font-size: 14px; }
+.card { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.card h2 { font-size: 18px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 5px; color: #555; }
+.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+.form-group textarea { font-family: "SFMono-Regular", Consolas, monospace; line-height: 1.6; }
+.form-group .hint { font-size: 12px; color: #999; margin-top: 3px; }
+.btn { display: inline-block; padding: 10px 24px; background: #2ea44f; color: #fff; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; }
+.btn:hover { background: #2c974b; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.msg { padding: 10px 15px; border-radius: 4px; margin-bottom: 15px; display: none; }
+.msg.success { display: block; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.msg.error { display: block; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.msg.info { display: block; background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+.token-setup { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+.token-setup h3 { font-size: 15px; margin-bottom: 8px; }
+.token-setup input { width: 100%; padding: 8px; border: 1px solid #ffc107; border-radius: 4px; font-size: 14px; }
+.note { font-size: 12px; color: #888; margin-top: 8px; }
+</style>
 </head>
 <body>
-  <script src="../admin/cms.js"></script>
+<div class="container">
+  <div class="header">
+    <h1>✏️ 写文章</h1>
+    <p>发表到 ziwen52/blog，自动构建部署到博客</p>
+  </div>
+
+  <div id="msg" class="msg"></div>
+
+  <div class="token-setup" id="tokenSetup">
+    <h3>🔑 GitHub Token</h3>
+    <p>填入你的 Personal Access Token（存在浏览器本地，不会上传到别处）</p>
+    <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+    <button class="btn" style="margin-top:8px" onclick="saveToken()">保存 Token</button>
+    <div class="note">Token 仅保存在你浏览器本地存储中。</div>
+  </div>
+
+  <div class="card">
+    <h2>文章信息</h2>
+    <div class="form-group">
+      <label>标题</label>
+      <input type="text" id="title" placeholder="文章标题">
+    </div>
+    <div class="form-group">
+      <label>分类（可填多个，逗号分隔）</label>
+      <input type="text" id="categories" placeholder="技术, 生活, 随笔">
+    </div>
+    <div class="form-group">
+      <label>标签（可填多个，逗号分隔）</label>
+      <input type="text" id="tags" placeholder="JavaScript, 读书笔记">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>正文（Markdown）</h2>
+    <div class="form-group">
+      <textarea id="content" rows="15" placeholder="在这里写文章内容...&#10;&#10;支持 Markdown 语法&#10;---&#10;# 标题&#10;**粗体** *斜体*&#10;- 列表项&#10;`代码`"></textarea>
+    </div>
+    <button class="btn" id="publishBtn" onclick="publish()">📤 发布文章</button>
+    <span id="status" style="margin-left:10px;font-size:13px;color:#666;"></span>
+  </div>
+
+  <div class="card">
+    <h2>📋 最近文章</h2>
+    <div id="recentPosts">
+      <p style="color:#999;">加载中...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://api.github.com';
+const REPO = 'ziwen52/blog';
+const BRANCH = 'master';
+
+function showMsg(text, type) {
+  const el = document.getElementById('msg');
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+function getToken() { return localStorage.getItem('gh_token'); }
+
+function saveToken() {
+  const token = document.getElementById('tokenInput').value.trim();
+  if (token) {
+    localStorage.setItem('gh_token', token);
+    document.getElementById('tokenInput').value = '';
+    showMsg('Token 已保存！', 'success');
+    loadRecentPosts();
+  }
+}
+
+// Load saved token into input placeholder
+const savedToken = getToken();
+if (savedToken) {
+  document.querySelector('.token-setup p').textContent = '✅ Token 已配置（点击输入框可更换）';
+  document.getElementById('tokenInput').placeholder = '已保存 Token，输入新值可更换';
+}
+
+async function api(path, method, body) {
+  const token = getToken();
+  if (!token) throw new Error('请先设置 GitHub Token');
+  const opts = {
+    method: method || 'GET',
+    headers: {
+      Authorization: 'token ' + token,
+      Accept: 'application/vnd.github.v3+json'
+    }
+  };
+  if (body) { opts.body = JSON.stringify(body); opts.headers['Content-Type'] = 'application/json'; }
+  const res = await fetch(API + path, opts);
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(res.status + ': ' + err.substring(0, 100));
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+async function publish() {
+  const title = document.getElementById('title').value.trim();
+  const content = document.getElementById('content').value.trim();
+  const categories = document.getElementById('categories').value.trim();
+  const tags = document.getElementById('tags').value.trim();
+
+  if (!title) { showMsg('请填写文章标题', 'error'); return; }
+  if (!content) { showMsg('请填写文章内容', 'error'); return; }
+
+  const btn = document.getElementById('publishBtn');
+  const statusEl = document.getElementById('status');
+  btn.disabled = true;
+  statusEl.textContent = '发布中...';
+
+  try {
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 19).replace('T', ' ');
+    const slug = title.toLowerCase()
+      .replace(/[^\w\u4e00-\u9fa5]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'post';
+    const fileName = dateStr.slice(0, 10) + '-' + slug + '.md';
+
+    // Build front-matter
+    let frontMatter = '---\ntitle: ' + title + '\ndate: ' + dateStr + '\n';
+    if (categories) frontMatter += 'categories:\n  - ' + categories.split(/[,，]/).map(c => c.trim()).filter(Boolean).join('\n  - ') + '\n';
+    if (tags) frontMatter += 'tags:\n  - ' + tags.split(/[,，]/).map(t => t.trim()).filter(Boolean).join('\n  - ') + '\n';
+    frontMatter += '---\n\n';
+
+    const fullContent = frontMatter + content;
+
+    // Check if file exists to get SHA
+    let sha = null;
+    try {
+      const existing = await api('/repos/' + REPO + '/contents/source/_posts/' + encodeURIComponent(fileName));
+      sha = existing.sha;
+    } catch (e) { /* file doesn't exist, that's fine */ }
+
+    await api('/repos/' + REPO + '/contents/source/_posts/' + encodeURIComponent(fileName), 'PUT', {
+      message: 'New post: ' + title,
+      content: btoa(unescape(encodeURIComponent(fullContent))),
+      sha: sha,
+      branch: BRANCH
+    });
+
+    showMsg('✅ 文章已提交！GitHub Actions 正在自动构建部署，约 1-2 分钟后生效。', 'success');
+    document.getElementById('title').value = '';
+    document.getElementById('content').value = '';
+    document.getElementById('categories').value = '';
+    document.getElementById('tags').value = '';
+    loadRecentPosts();
+  } catch (e) {
+    showMsg('❌ 发布失败: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    statusEl.textContent = '';
+  }
+}
+
+async function loadRecentPosts() {
+  const el = document.getElementById('recentPosts');
+  try {
+    const data = await api('/repos/' + REPO + '/contents/source/_posts');
+    if (data && data.length > 0) {
+      // Sort by name descending (newest first)
+      data.sort((a, b) => b.name.localeCompare(a.name));
+      let html = '<ul style="list-style:none;">';
+      data.slice(0, 10).forEach(f => {
+        html += '<li style="padding:8px 0;border-bottom:1px solid #eee;font-size:14px;">';
+        html += '<a href="' + f.html_url + '" target="_blank" style="color:#0366d6;text-decoration:none;">' + f.name.replace(/\.md$/, '') + '</a>';
+        html += ' <span style="color:#999;font-size:12px;">(' + Math.round(f.size/1000) + 'KB)</span>';
+        html += '</li>';
+      });
+      html += '</ul>';
+      el.innerHTML = html;
+    } else {
+      el.innerHTML = '<p style="color:#999;">暂无文章</p>';
+    }
+  } catch (e) {
+    el.innerHTML = '<p style="color:#999;">加载失败（需要配置 Token 后才能查看）</p>';
+  }
+}
+
+loadRecentPosts();
+</script>
 </body>
 </html>
