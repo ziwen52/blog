@@ -4,9 +4,8 @@ backend:
   name: github
   repo: ziwen52/blog
   branch: master
-  base_url: https://decap-cms-auth.netlify.app
-  auth_endpoint: auth
-  site_id: Ov23li2O71nqmdcHsuJc
+  # Using Personal Access Token auth (no OAuth proxy needed)
+  auth_endpoint: none
 
 media_folder: "source/images/uploads"
 public_folder: "/images/uploads"
