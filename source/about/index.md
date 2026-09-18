@@ -12,6 +12,7 @@ date: 2026-07-19 17:35:56
 ## 📮 联系我
 
 - **GitHub**: [ziwen52](https://github.com/ziwen52)
+- **邮箱**: [ziwenw608@gmail.com](mailto:ziwenw608@gmail.com)
 
 ---
 

@@ -16,6 +16,14 @@ menu:
 # ---------------------------------------------------------------
 scheme: Gemini
 
+# Load site-level custom CSS without modifying the NexT package.
+custom_file_path:
+  style: source/_data/styles.styl
+
+# Keep navigation responsive by avoiding heavy page-entry animations.
+motion:
+  enable: false
+
 # ---------------------------------------------------------------
 # Sidebar Settings
 # ---------------------------------------------------------------
