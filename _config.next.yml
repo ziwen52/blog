@@ -21,9 +21,18 @@ custom_file_path:
   style: source/_data/styles.styl
   bodyEnd: source/_data/body-end.njk
 
-# Keep navigation responsive by avoiding heavy page-entry animations.
+# Use short, GPU-friendly entry transitions without slowing navigation.
 motion:
-  enable: false
+  enable: true
+  async: false
+  duration: 180
+  transition:
+    menu_item: fadeInDown
+    post_block: fadeIn
+    post_header: fadeInDown
+    post_body: fadeIn
+    coll_header: fadeInLeft
+    sidebar: fadeInUp
 
 # ---------------------------------------------------------------
 # Sidebar Settings
