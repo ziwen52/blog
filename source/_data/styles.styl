@@ -579,3 +579,119 @@ body .popup {
     color: #1d1d1f !important;
   }
 }
+
+
+/* WeChat Moments-inspired image gallery */
+.post-body .image-gallery {
+  display: grid;
+  gap: 8px;
+  margin: 1.35em 0;
+  max-width: 540px;
+}
+
+.post-body .image-gallery--1 {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 560px;
+}
+
+.post-body .image-gallery--2,
+.post-body .image-gallery--4 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 420px;
+}
+
+.post-body .image-gallery--3,
+.post-body .image-gallery--5,
+.post-body .image-gallery--6,
+.post-body .image-gallery--7,
+.post-body .image-gallery--8,
+.post-body .image-gallery--9 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.post-body .image-gallery img {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+  cursor: zoom-in;
+  display: block;
+  margin: 0;
+  object-fit: cover;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+  width: 100%;
+}
+
+.post-body .image-gallery img:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+  transform: scale(1.015);
+}
+
+.post-body .image-gallery--1 img {
+  aspect-ratio: auto;
+  background: #f5f5f7;
+  max-height: 480px;
+  object-fit: contain;
+}
+
+.blog-image-lightbox {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.86);
+  cursor: zoom-out;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  opacity: 0;
+  padding: 24px;
+  position: fixed;
+  transition: opacity 180ms ease;
+  visibility: hidden;
+  z-index: 1000;
+}
+
+.blog-image-lightbox.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.blog-image-lightbox img {
+  border-radius: 10px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.36);
+  cursor: default;
+  max-height: calc(100vh - 48px);
+  max-width: min(1120px, calc(100vw - 48px));
+  object-fit: contain;
+}
+
+.blog-image-lightbox button {
+  background: rgba(255, 255, 255, 0.16);
+  border: 0;
+  border-radius: 999px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 26px;
+  height: 40px;
+  line-height: 1;
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 40px;
+}
+
+.blog-image-lightbox button:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+body.blog-image-lightbox-open {
+  overflow: hidden;
+}
+
+@media (max-width: 767px) {
+  .post-body .image-gallery {
+    gap: 6px;
+    max-width: 100%;
+  }
+
+  .post-body .image-gallery--1 img {
+    max-height: 360px;
+  }
+}
