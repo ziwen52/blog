@@ -28,25 +28,69 @@
       if (event.key === 'Escape') closeOverlay();
     });
 
-    document.querySelectorAll('.post-body p').forEach(paragraph => {
-      const images = [...paragraph.querySelectorAll(':scope > img')];
-      if (!images.length) return;
+    const attachPreview = image => {
+      image.loading = 'lazy';
+      image.addEventListener('click', () => {
+        preview.src = image.currentSrc || image.src;
+        preview.alt = image.alt || '文章图片预览';
+        overlay.classList.add('is-open');
+        document.body.classList.add('blog-image-lightbox-open');
+      });
+    };
 
+    const directImages = paragraph => [...paragraph.querySelectorAll(':scope > img')];
+    const isImageOnlyParagraph = paragraph => {
+      const images = directImages(paragraph);
+      return images.length > 0 && [...paragraph.childNodes].every(node =>
+        (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'IMG') ||
+        (node.nodeType === Node.TEXT_NODE && !node.textContent.trim())
+      );
+    };
+
+    const mountGallery = (anchor, images, removeParagraphs) => {
       const gallery = document.createElement('div');
-      const count = Math.min(images.length, 9);
-      gallery.className = 'image-gallery image-gallery--' + count;
-      paragraph.insertBefore(gallery, images[0]);
-
+      gallery.className = 'image-gallery image-gallery--' + Math.min(images.length, 9);
+      anchor.before(gallery);
       images.forEach(image => {
-        image.loading = 'lazy';
-        image.addEventListener('click', () => {
-          preview.src = image.currentSrc || image.src;
-          preview.alt = image.alt || '文章图片预览';
-          overlay.classList.add('is-open');
-          document.body.classList.add('blog-image-lightbox-open');
-        });
+        attachPreview(image);
         gallery.append(image);
       });
+      removeParagraphs.forEach(paragraph => paragraph.remove());
+    };
+
+    document.querySelectorAll('.post-body').forEach(body => {
+      const paragraphs = [...body.querySelectorAll('p')];
+      for (let index = 0; index < paragraphs.length;) {
+        const paragraph = paragraphs[index];
+        if (!paragraph.isConnected) {
+          index += 1;
+          continue;
+        }
+
+        if (isImageOnlyParagraph(paragraph)) {
+          const group = [paragraph];
+          let next = index + 1;
+          while (next < paragraphs.length && isImageOnlyParagraph(paragraphs[next])) {
+            group.push(paragraphs[next]);
+            next += 1;
+          }
+          mountGallery(paragraph, group.flatMap(directImages), group);
+          index = next;
+          continue;
+        }
+
+        const images = directImages(paragraph);
+        if (images.length) {
+          const gallery = document.createElement('div');
+          gallery.className = 'image-gallery image-gallery--' + Math.min(images.length, 9);
+          paragraph.insertBefore(gallery, images[0]);
+          images.forEach(image => {
+            attachPreview(image);
+            gallery.append(image);
+          });
+        }
+        index += 1;
+      }
     });
   };
 
